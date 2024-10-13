@@ -1,5 +1,5 @@
 import requests
-import json
+from logger import logger
 from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
 
 
@@ -24,4 +24,13 @@ class AccountApi:
         :return: status code
         """
         response = requests.put(url=f"{self.host}/v1/account/{token}")
+        return response.status_code
+
+    def put_v1_account_email(self, json_data: PostV1AccountsRequest) -> int:
+        """
+        Change user email.
+        :param json_data: user model data
+        :return: status code
+        """
+        response = requests.put(url=f"{self.host}/v1/account/email", json=json_data.model_dump())
         return response.status_code
