@@ -7,12 +7,12 @@ class LoginApi:
         self.host = host
         self.headers = headers
 
-    def post_v1_account_login(self, json_data: PostV1LoginRequest) -> int:
+    def post_v1_account_login(self, json_data: PostV1LoginRequest) -> requests.Response:
         """
         Authenticate via credentials.
         :param json_data:
         :return: status code
         """
-        response_login = requests.post(url=f"{self.host}/v1/account/login", json=json_data.model_dump())
+        response= requests.post(url=f"{self.host}/v1/account/login", json=json_data.model_dump())
 
-        return response_login.status_code
+        return response

@@ -4,6 +4,7 @@ from http import HTTPStatus
 import pytest
 import allure
 from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
+from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
 
 
 def get_token_by_login(login: str, mails: dict) -> str:
@@ -20,14 +21,25 @@ def get_token_by_login(login: str, mails: dict) -> str:
 
 
 @pytest.mark.usefixtures("init_api_clients")
-class TestPostV1Accounts:
+class TestPostV1AccountLogin:
 
     @allure.title("Check register user")
-    def test_post_v1_account(self):
+    def test_post_v1_account_login(self):
         login = f"vera{random.randrange(1000)}"
         user = PostV1AccountsRequest(login=login, email=f"{login}@mail.ru", password="1234567889")
+        login_data = PostV1LoginRequest(login=user.login, password=user.password)
 
         with allure.step("Register new user"):
-            register_response = self.account_api.post_v1_account(user)
-            status_code = register_response.status_code
-            assert status_code == HTTPStatus.CREATED, f"Error status code after reqister user: {status_code}"
+            self.account_api.post_v1_account(user)
+
+        with allure.step("Get user account token from email"):
+            mails = self.mailhog_api.get_api_v2_messages()
+            token = get_token_by_login(user.login, mails.json())
+
+        with allure.step("Authorize under user"):
+            self.account_api.put_v1_account_token(token)
+
+        with allure.step("Login under user"):
+            login_response = self.login_api.post_v1_account_login(login_data)
+            status_code = login_response.status_code
+            assert status_code == HTTPStatus.OK, f"Error status code after login user: {status_code}"
