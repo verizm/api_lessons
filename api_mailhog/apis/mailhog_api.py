@@ -1,10 +1,8 @@
 import requests
+from restclient.client import RestClient
 
 
-class MailhogApi:
-    def __init__(self, host, email=None):
-        self.host = host
-        self.email = email
+class MailhogApi(RestClient):
 
     def get_api_v2_messages(self, limit: int = 50) -> requests.Response:
         """
@@ -14,5 +12,5 @@ class MailhogApi:
         """
         params = {"limit": limit}
 
-        response = requests.get(url=f"{self.host}/api/v2/messages", params=params)
+        response = self.get(path="/api/v2/messages", params=params)
         return response
