@@ -107,6 +107,4 @@ class AccountHelper:
 
     def login_user(self, user: PostV1LoginRequest) -> Response:
         login_response = self.dm_account_api.login_api.post_v1_account_login(user)
-        status_code = login_response.status_code
-        assert status_code == HTTPStatus.OK, f"Error status code after login user: {status_code}"
         return login_response

@@ -28,6 +28,6 @@ class TestPutV1AccountEmail:
             assert status_code == HTTPStatus.FORBIDDEN, f"Error status code after login under not authorized user: {status_code}"
 
         with allure.step("Authorize user with new email"):
-            token = account_helper.get_activation_token_by_login(new_login)
+            token = account_helper.get_activation_token_by_login(login)
             login_response = account_helper.dm_account_api.account_api.put_v1_account_token(token)
             assert login_response.status_code == HTTPStatus.OK, f"Error status code after new authorize: {login_response.status_code}"
