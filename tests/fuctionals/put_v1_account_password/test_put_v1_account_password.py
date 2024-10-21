@@ -11,6 +11,7 @@ class TestPutV1AccountPassword:
         new_password = "12341111"
         auth_account_helper = auth_account_helper(user)
         response = auth_account_helper.change_password(user, new_password)
+
         with allure.step("Check password changed succesfully"):
             assert response.status_code == 200, f"Incorrect status code after change password {response.status_code}"
 

@@ -1,7 +1,5 @@
-import json
 import random
 from http import HTTPStatus
-import pytest
 import allure
 from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
 from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
