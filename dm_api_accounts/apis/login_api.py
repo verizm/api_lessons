@@ -1,17 +1,17 @@
 import requests
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+from models.data_models.login_credentials import LoginCredentials
 from restclient.client import RestClient
 
 
 class LoginApi(RestClient):
 
-    def post_v1_account_login(self, json_data: PostV1LoginRequest) -> requests.Response:
+    def post_v1_account_login(self, json_data: LoginCredentials) -> requests.Response:
         """
         Authenticate via credentials.
         :param json_data:
         :return: requests.Response
         """
-        response = self.post(path="/v1/account/login", json=json_data.model_dump())
+        response = self.post(path="/v1/account/login", json=json_data.model_dump(exclude_none=True, by_alias=True))
         return response
 
     def delete_v1_account_login(self) -> requests.Response:
@@ -29,4 +29,3 @@ class LoginApi(RestClient):
         """
         response = self.delete(path="/v1/account/login/all")
         return response
-

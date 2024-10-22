@@ -1,8 +1,8 @@
 import random
 from http import HTTPStatus
 import allure
-from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+from models.data_models.registration import Registration
+from models.data_models.login_credentials import LoginCredentials
 
 
 class TestPostV1AccountLogin:
@@ -10,8 +10,8 @@ class TestPostV1AccountLogin:
     @allure.title("Check register user")
     def test_post_v1_account_login(self, account_helper):
         login = f"vera{random.randrange(1000)}"
-        user = PostV1AccountsRequest(login=login, email=f"{login}@mail.ru", password="1234567889")
-        login_data = PostV1LoginRequest(login=user.login, password=user.password)
+        user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
+        login_data = LoginCredentials(login=user.login, password=user.password)
 
         account_helper.register_new_user(user)
         with allure.step(f"Check login new user: {user}"):

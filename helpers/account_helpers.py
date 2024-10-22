@@ -7,10 +7,16 @@ from http import HTTPStatus
 from logger import log
 from services.mailhog_api import MailhogApiFacade
 from services.dm_api_account import DmApiAccountFacade
-from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
-from models.api_models.api_account_models.put_v1_account_password_models import PutV1AccountsPasswordRequest
-from models.api_models.api_account_models.post_v1_account_password import PostV1AccountsPasswordRequest
+# from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
+# from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+# from models.api_models.api_account_models.put_v1_account_password_models import PutV1AccountsPasswordRequest
+# from models.api_models.api_account_models.post_v1_account_password import PostV1AccountsPasswordRequest
+
+from models.data_models.registration import Registration
+from models.data_models.reset_password import ResetPassword
+from models.data_models.change_password import ChangePassword
+from models.data_models.change_email import ChangeEmail
+from models.data_models.login_credentials import LoginCredentials
 
 
 def token_retrier(function: Callable):
@@ -20,6 +26,7 @@ def token_retrier(function: Callable):
         while token is None:
             log.msg(f"Try to get token count: {count}")
             token = function(*args, **kwargs)
+            print(f"TOKEN: {token}")
             count += 1
 
             if count == 5:
@@ -63,34 +70,32 @@ class AccountHelper:
                 token = link[-1]
                 return token
 
-    def auth_client(self, user: PostV1AccountsRequest) -> Response:
+    def auth_client(self, user_credentials: LoginCredentials) -> Response:
         """
-        Auth user in services.
-        :param user: PostV1AccountsRequest data
+        Set session token in headers for clients.
+        :param user_credentials: LoginCredentials data
         :return:  None
         """
         with allure.step("Create user session"):
-            response = self.login_user(PostV1LoginRequest(login=user.login, password=user.password))
+            response = self.login_user(user_credentials)
             token = {self.AUTH_HEADER: response.headers[self.AUTH_HEADER]}
             self.dm_account_api.account_api.set_headers(token)
             self.dm_account_api.login_api.set_headers(token)
             return response
 
-    def change_password(self, user: PostV1AccountsRequest, new_password: str) -> Response:
+    def change_password(self, reset_pass_data: ResetPassword, change_pass_data: ChangePassword) -> Response:
         """
-        Change password for authorized user.
-        :param user: PostV1AccountsRequest data
-        :param new_password: new user password str
+        Change password for authorized user
+        :param reset_pass_data: ResetPassword data.
+        :param change_pass_data: ChangePassword data
         :return:  Response
         """
-        self.auth_client(user)
-        self.dm_account_api.account_api.post_v1_account_password(PostV1AccountsPasswordRequest(login=user.login, email=user.email))
-        token = self.get_reset_password_token(user.login)
-        data = PutV1AccountsPasswordRequest(login=user.login, token=token, old_password=user.password, new_password=new_password)
-        response = self.dm_account_api.account_api.put_v1_account_password(data)
+        self.dm_account_api.account_api.post_v1_account_password(reset_pass_data)
+        change_pass_data.token = self.get_reset_password_token(reset_pass_data.login)
+        response = self.dm_account_api.account_api.put_v1_account_password(change_pass_data)
         return response
 
-    def register_new_user(self, user: PostV1AccountsRequest) -> Response:
+    def register_new_user(self, user: Registration) -> Response:
         with allure.step("Register new user"):
             register_response = self.dm_account_api.account_api.post_v1_account(user)
             status_code = register_response.status_code
@@ -105,6 +110,6 @@ class AccountHelper:
             assert status_code == HTTPStatus.OK, f"Error status code after authorize user: {status_code}"
         return authorize_response
 
-    def login_user(self, user: PostV1LoginRequest) -> Response:
+    def login_user(self, user: LoginCredentials) -> Response:
         login_response = self.dm_account_api.login_api.post_v1_account_login(user)
         return login_response

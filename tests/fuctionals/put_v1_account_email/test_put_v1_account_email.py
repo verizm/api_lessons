@@ -1,8 +1,8 @@
 import random
 import allure
 from http import HTTPStatus
-from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+from models.data_models.registration import Registration
+from models.data_models.login_credentials import LoginCredentials
 
 
 class TestPutV1AccountEmail:
@@ -10,10 +10,10 @@ class TestPutV1AccountEmail:
     @allure.title("Check login after change email")
     def test_post_v1_account_email(self, account_helper):
         login = f"vera{random.randrange(1000)}"
-        user = PostV1AccountsRequest(login=login, email=f"{login}@mail.ru", password="1234567889")
-        login_data = PostV1LoginRequest(login=user.login, password=user.password)
+        user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
+        login_data = LoginCredentials(login=user.login, password=user.password)
         new_login = f"vera_new{random.randrange(1000)}"
-        user_new_data = PostV1AccountsRequest(login=user.login, email=f"{new_login}@gmail.ru", password=user.password)
+        user_new_data = Registration(login=user.login, email=f"{new_login}@gmail.ru", password=user.password)
 
         account_helper.register_new_user(user)
         account_helper.login_user(login_data)

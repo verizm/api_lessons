@@ -6,7 +6,8 @@ from restclient.configuration import Configuration as DmConfiguration
 from helpers.account_helpers import AccountHelper
 from services.dm_api_account import DmApiAccountFacade
 from services.mailhog_api import MailhogApiFacade
-from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
+from models.data_models.registration import Registration
+from models.data_models.login_credentials import LoginCredentials
 
 
 @pytest.fixture(scope="class")
@@ -43,12 +44,12 @@ def auth_account_helper(mailhog_api) -> Callable:
     :return: AccountHelper
     """
 
-    def _make_auth_session(user: PostV1AccountsRequest) -> AccountHelper:
+    def _make_auth_session(user: Registration) -> AccountHelper:
         dm_configuration = DmConfiguration(host="http://5.63.153.31:5051", disable_log=False)
         account = DmApiAccountFacade(dm_configuration)
         account_helper = AccountHelper(dm_account_api=account, mailhog=mailhog_api)
         account_helper.register_new_user(user)
-        account_helper.auth_client(user)
+        account_helper.auth_client(LoginCredentials(login=user.login, password=user.password))
         return account_helper
 
     return _make_auth_session
