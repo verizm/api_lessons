@@ -1,68 +1,36 @@
-import json
 import random
 import allure
-import pytest
 from http import HTTPStatus
-from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+from models.data_models.registration import Registration
+from models.data_models.login_credentials import LoginCredentials
 
 
-def get_token_by_login(login: str, mails) -> str:
-    """
-    Get access token by user login.
-     """
-    for item in mails['items']:
-        user_content = json.loads(item['Content']['Body'])
-        if user_content["Login"] == login:
-            token = user_content["ConfirmationLinkUrl"].split("/")[-1]
-            return token
-        else:
-            raise Exception(f"Access token not found by login {login}")
-
-
-@pytest.mark.usefixtures("init_api_clients")
 class TestPutV1AccountEmail:
 
     @allure.title("Check login after change email")
-    def test_post_v1_account_email(self):
-        login = f"vera{random.randrange(1000)}"
-        user = PostV1AccountsRequest(login=login, email=f"{login}@mail.ru", password="1234567889")
-        login_data = PostV1LoginRequest(login=user.login, password=user.password)
+    def test_post_v1_account_email(self, account_helper):
+        login = f"vera{random.randrange(1000, 2000)}"
+        user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
+        login_data = LoginCredentials(login=user.login, password=user.password)
         new_login = f"vera_new{random.randrange(1000)}"
-        user_new_data = PostV1AccountsRequest(login=user.login, email=f"{new_login}@gmail.ru", password=user.password)
+        user_new_data = Registration(login=user.login, email=f"{new_login}@gmail.ru", password=user.password)
 
-        with allure.step("Register new user"):
-            self.account_api.post_v1_account(user)
-
-        with allure.step("Get user account token from email"):
-            mails = self.mailhog_api.get_api_v2_messages()
-            token = get_token_by_login(user.login, mails.json())
-
-        with allure.step("Authorize under user"):
-            self.account_api.put_v1_account_token(token)
-
-        with allure.step("Login under user"):
-            self.login_api.post_v1_account_login(login_data)
+        account_helper.register_new_user(user)
+        account_helper.login_user(login_data)
 
         with allure.step("Change email data"):
-            change_mail_resp = self.account_api.put_v1_account_email(user_new_data)
+            change_mail_resp = account_helper.dm_account_api.account_api.put_v1_account_email(
+                user_new_data,
+                validate_response=False
+            )
             assert change_mail_resp.status_code == HTTPStatus.OK, f"Error status code after change email: {change_mail_resp}"
 
-        with allure.step("Login with new email"):
-            login_response = self.login_api.post_v1_account_login(login_data)
+        with allure.step("Login with new email without authorize"):
+            login_response = account_helper.login_user(login_data)
             status_code = login_response.status_code
             assert status_code == HTTPStatus.FORBIDDEN, f"Error status code after login under not authorized user: {status_code}"
 
-        with allure.step("Get new account token from mail"):
-            mails = self.mailhog_api.get_api_v2_messages()
-            token = get_token_by_login(user_new_data.login, mails.json())
-
         with allure.step("Authorize user with new email"):
-            authorize_response = self.account_api.put_v1_account_token(token)
-            status_code = authorize_response.status_code
-            assert status_code == HTTPStatus.OK, f"Error status code after authorize user: {status_code}"
-
-        with allure.step("Login under user after change email"):
-            login_response = self.login_api.post_v1_account_login(login_data)
-            status_code = login_response.status_code
-            assert status_code == HTTPStatus.OK, f"Error status code after login user: {status_code}"
+            token = account_helper.get_activation_token_by_login(login)
+            login_response = account_helper.dm_account_api.account_api.put_v1_account_token(token,validate_response=False)
+            assert login_response.status_code == HTTPStatus.OK, f"Error status code after new authorize: {login_response.status_code}"

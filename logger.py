@@ -1,3 +1,4 @@
-from logging import Logger
+import structlog
 
-logger = Logger(__name__)
+structlog.configure(processors=[structlog.processors.JSONRenderer(indent=4, ensure_ascii=True)])
+log = structlog.get_logger(__name__)

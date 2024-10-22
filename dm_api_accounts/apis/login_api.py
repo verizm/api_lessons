@@ -1,18 +1,35 @@
 import requests
-from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
+from models.data_models.login_credentials import LoginCredentials
+from models.response_models.user_envelope import UserEnvelope
+from restclient.client import RestClient
 
 
-class LoginApi:
-    def __init__(self, host, headers=None):
-        self.host = host
-        self.headers = headers
+class LoginApi(RestClient):
 
-    def post_v1_account_login(self, json_data: PostV1LoginRequest) -> requests.Response:
+    def post_v1_account_login(self, json_data: LoginCredentials, validate_response: bool = True) -> requests.Response | UserEnvelope:
         """
         Authenticate via credentials.
-        :param json_data:
-        :return: status code
+        :param: json_data LoginCredentials model
+        :param: bool validate_response
+        :return: requests.Response
         """
-        response= requests.post(url=f"{self.host}/v1/account/login", json=json_data.model_dump())
+        response = self.post(path="/v1/account/login", json=json_data.model_dump(exclude_none=True, by_alias=True))
+        if validate_response:
+            return UserEnvelope(**response.json())
+        return response
 
+    def delete_v1_account_login(self) -> requests.Response:
+        """
+        Relogin user via token.
+        :return: requests.Response
+        """
+        response = self.delete(path="/v1/account/login")
+        return response
+
+    def delete_v1_account_login_all(self) -> requests.Response:
+        """
+        Relogin user via token from all devices.
+        :return: requests.Response
+        """
+        response = self.delete(path="/v1/account/login/all")
         return response
