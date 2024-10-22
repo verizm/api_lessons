@@ -2,20 +2,15 @@ import json
 import time
 import allure
 from typing import Callable
-from requests import Response
+from requests import Response, JSONDecodeError
 from http import HTTPStatus
 from logger import log
 from services.mailhog_api import MailhogApiFacade
 from services.dm_api_account import DmApiAccountFacade
-# from models.api_models.api_account_models.post_v1_accounts_models import PostV1AccountsRequest
-# from models.api_models.api_login_models.post_v1_login_models import PostV1LoginRequest
-# from models.api_models.api_account_models.put_v1_account_password_models import PutV1AccountsPasswordRequest
-# from models.api_models.api_account_models.post_v1_account_password import PostV1AccountsPasswordRequest
 
 from models.data_models.registration import Registration
 from models.data_models.reset_password import ResetPassword
 from models.data_models.change_password import ChangePassword
-from models.data_models.change_email import ChangeEmail
 from models.data_models.login_credentials import LoginCredentials
 
 
@@ -26,7 +21,7 @@ def token_retrier(function: Callable):
         while token is None:
             log.msg(f"Try to get token count: {count}")
             token = function(*args, **kwargs)
-            print(f"TOKEN: {token}")
+
             count += 1
 
             if count == 5:
@@ -51,8 +46,12 @@ class AccountHelper:
         Get access token by user login.
         """
         mails = self.mailhog.mailhog_api.get_api_v2_messages().json()
+
         for item in mails['items']:
-            user_content = json.loads(item['Content']['Body'])
+            try:
+                user_content = json.loads(item['Content']['Body'])
+            except (JSONDecodeError, KeyError):
+                continue
             if user_content["Login"] == login:
                 token = user_content["ConfirmationLinkUrl"].split("/")[-1]
                 return token
