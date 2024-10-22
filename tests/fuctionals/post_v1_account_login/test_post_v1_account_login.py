@@ -9,7 +9,7 @@ class TestPostV1AccountLogin:
 
     @allure.title("Check register user")
     def test_post_v1_account_login(self, account_helper):
-        login = f"vera{random.randrange(1000)}"
+        login = f"vera{random.randrange(1000, 2000)}"
         user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
         login_data = LoginCredentials(login=user.login, password=user.password)
 

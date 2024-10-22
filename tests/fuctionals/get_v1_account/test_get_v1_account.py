@@ -6,7 +6,7 @@ from models.data_models.registration import Registration
 class TestGetV1Account:
 
     def test_get_v1_account(self, auth_account_helper):
-        login = f"vera{random.randrange(1000)}"
+        login = f"vera{random.randrange(1000, 2000)}"
         user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
 
         auth_account_helper = auth_account_helper(user)

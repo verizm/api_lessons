@@ -9,7 +9,7 @@ class TestPutV1AccountEmail:
 
     @allure.title("Check login after change email")
     def test_post_v1_account_email(self, account_helper):
-        login = f"vera{random.randrange(1000)}"
+        login = f"vera{random.randrange(1000, 2000)}"
         user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
         login_data = LoginCredentials(login=user.login, password=user.password)
         new_login = f"vera_new{random.randrange(1000)}"

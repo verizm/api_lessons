@@ -8,7 +8,7 @@ from models.data_models.reset_password import ResetPassword
 class TestPutV1AccountPassword:
 
     def test_put_v1_account_password(self, auth_account_helper):
-        login = f"vera{random.randrange(1000)}"
+        login = f"vera{random.randrange(1000, 2000)}"
         user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
         new_pass_data = ChangePassword(login=login, token="", old_password=user.password, new_password="12341111")
         reset_pass_data = ResetPassword(login=user.login, email=user.email)
