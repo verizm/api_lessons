@@ -82,19 +82,25 @@ class AccountHelper:
             self.dm_account_api.login_api.set_headers(token)
             return response
 
-    def change_password(self, reset_pass_data: ResetPassword, change_pass_data: ChangePassword) -> Response:
+    def change_password(
+            self,
+            reset_pass_data: ResetPassword,
+            change_pass_data: ChangePassword,
+            validate_response: bool = False,
+    ) -> Response:
         """
         Change password for authorized user
+        :param validate_response: bool
         :param reset_pass_data: ResetPassword data.
         :param change_pass_data: ChangePassword data
         :return:  Response
         """
-        self.dm_account_api.account_api.post_v1_account_password(reset_pass_data)
+        self.dm_account_api.account_api.post_v1_account_password(reset_pass_data, validate_response)
         change_pass_data.token = self.get_reset_password_token(reset_pass_data.login)
-        response = self.dm_account_api.account_api.put_v1_account_password(change_pass_data)
+        response = self.dm_account_api.account_api.put_v1_account_password(change_pass_data, validate_response)
         return response
 
-    def register_new_user(self, user: Registration) -> Response:
+    def register_new_user(self, user: Registration, validate_response: bool = False) -> Response:
         with allure.step("Register new user"):
             register_response = self.dm_account_api.account_api.post_v1_account(user)
             status_code = register_response.status_code
@@ -104,11 +110,11 @@ class AccountHelper:
             token = self.get_activation_token_by_login(user.login)
 
         with allure.step("Authorize under user"):
-            authorize_response = self.dm_account_api.account_api.put_v1_account_token(token)
+            authorize_response = self.dm_account_api.account_api.put_v1_account_token(token, validate_response)
             status_code = authorize_response.status_code
             assert status_code == HTTPStatus.OK, f"Error status code after authorize user: {status_code}"
         return authorize_response
 
-    def login_user(self, user: LoginCredentials) -> Response:
-        login_response = self.dm_account_api.login_api.post_v1_account_login(user)
+    def login_user(self, user: LoginCredentials, validate_response=False) -> Response:
+        login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
         return login_response

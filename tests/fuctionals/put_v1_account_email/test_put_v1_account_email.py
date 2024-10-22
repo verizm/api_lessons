@@ -19,7 +19,10 @@ class TestPutV1AccountEmail:
         account_helper.login_user(login_data)
 
         with allure.step("Change email data"):
-            change_mail_resp = account_helper.dm_account_api.account_api.put_v1_account_email(user_new_data)
+            change_mail_resp = account_helper.dm_account_api.account_api.put_v1_account_email(
+                user_new_data,
+                validate_response=False
+            )
             assert change_mail_resp.status_code == HTTPStatus.OK, f"Error status code after change email: {change_mail_resp}"
 
         with allure.step("Login with new email without authorize"):
@@ -29,5 +32,5 @@ class TestPutV1AccountEmail:
 
         with allure.step("Authorize user with new email"):
             token = account_helper.get_activation_token_by_login(login)
-            login_response = account_helper.dm_account_api.account_api.put_v1_account_token(token)
+            login_response = account_helper.dm_account_api.account_api.put_v1_account_token(token,validate_response=False)
             assert login_response.status_code == HTTPStatus.OK, f"Error status code after new authorize: {login_response.status_code}"

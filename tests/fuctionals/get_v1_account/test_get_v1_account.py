@@ -10,6 +10,6 @@ class TestGetV1Account:
         user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
 
         auth_account_helper = auth_account_helper(user)
-        response = auth_account_helper.dm_account_api.account_api.get_v1_account()
+        response = auth_account_helper.dm_account_api.account_api.get_v1_account(validate_response=False)
         with allure.step("Check user data"):
             assert response.status_code == 200, f"Incorrect status code after get user data {response.status_code}"
