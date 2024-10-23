@@ -5,6 +5,7 @@ from typing import Callable
 from requests import Response, JSONDecodeError
 from http import HTTPStatus
 from logger import log
+from models.response_models.user_envelope import UserEnvelope
 from services.mailhog_api import MailhogApiFacade
 from services.dm_api_account import DmApiAccountFacade
 
@@ -12,6 +13,7 @@ from models.data_models.registration import Registration
 from models.data_models.reset_password import ResetPassword
 from models.data_models.change_password import ChangePassword
 from models.data_models.login_credentials import LoginCredentials
+
 
 
 def token_retrier(function: Callable):
@@ -115,6 +117,6 @@ class AccountHelper:
             assert status_code == HTTPStatus.OK, f"Error status code after authorize user: {status_code}"
         return authorize_response
 
-    def login_user(self, user: LoginCredentials, validate_response=False) -> Response:
+    def login_user(self, user: LoginCredentials, validate_response=False) -> Response | UserEnvelope:
         login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
         return login_response
