@@ -40,15 +40,23 @@ class InfoBdText(BaseModel):
 
 
 class PagingSettings(BaseModel):
-    postsPerPage: int = Field(description="Number of posts on a game room page")
-    commentsPerPage: int = Field(description="Number of commentaries on a game or a topic page")
-    topicsPerPage: int = Field(description="Number of detached topics on a forum page")
-    messagesPerPage: int = Field(description="Number of private messages and conversations on dialogue page")
-    entitiesPerPage: int = Field(description="Number of other entities on page")
+    posts_per_page: int = Field(description="Number of posts on a game room page", validation_alias="postsPerPage")
+
+    comments_per_page: int = Field(
+        description="Number of commentaries on a game or a topic page",
+        validation_alias="commentsPerPage",
+    )
+    topics_per_page: int = Field(description="Number of detached topics on a forum page", validation_alias="topicsPerPage")
+
+    messages_per_page: int = Field(
+        description="Number of private messages and conversations on dialogue page",
+        validation_alias="messagesPerPage"
+    )
+    entities_per_page: int = Field(description="Number of other entities on page", validation_alias="entitiesPerPage")
 
 
 class UserSettings(BaseModel):
-    colorSchema: ColorSchema
+    color_schema: ColorSchema = Field(validation_alias="colorSchema")
     nannyGreetingsMessage: str = Field(None, description="Message that user's newbies will receive once they are connected")
     paging: PagingSettings
 
@@ -66,7 +74,7 @@ class UserDetails(BaseModel):
     registration: datetime = Field(None, alias="User registration moment")
     icq: str = Field(None, description="User ICQ number")
     skype: str = Field(None, description="User Skype login")
-    originalPictureUrl: str = Field(None, description="URL of profile picture original")
+    originalPictureUrl: str = Field(None, description="URL of profile picture original", validation_alias="originalPictureUrl")
     info: InfoBdText | str = None
     settings: UserSettings
 

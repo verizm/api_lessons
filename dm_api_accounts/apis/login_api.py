@@ -11,7 +11,7 @@ class LoginApi(RestClient):
         Authenticate via credentials.
         :param: json_data LoginCredentials model
         :param: bool validate_response
-        :return: requests.Response
+        :return: requests.Response or UserEnvelope
         """
         response = self.post(path="/v1/account/login", json=json_data.model_dump(exclude_none=True, by_alias=True))
         if validate_response:
