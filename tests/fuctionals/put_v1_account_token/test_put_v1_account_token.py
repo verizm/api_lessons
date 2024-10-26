@@ -12,4 +12,3 @@ class TestPutV1AccountToken:
         account_helper.dm_account_api.account_api.post_v1_account(user)
         token = account_helper.get_activation_token_by_login(login)
         resp = account_helper.dm_account_api.account_api.put_v1_account_token(token)
-        print(resp)

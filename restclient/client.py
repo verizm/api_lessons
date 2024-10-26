@@ -4,6 +4,7 @@ from typing import Literal
 from requests import (
     Session,
     JSONDecodeError,
+    HTTPError,
 )
 from restclient.configuration import Configuration
 from logger import log
@@ -45,8 +46,13 @@ class RestClient:
                 params=kwargs.get('params'),
                 data=kwargs.get('data')
             )
-            rest_response.raise_for_status()
-            return rest_response
+
+            try:
+                rest_response.raise_for_status()
+                print(f"RESPONSE {rest_response}")
+                return rest_response
+            except HTTPError:
+                raise HTTPError(rest_response.text, response=rest_response)
 
         rest_response = self.session.request(method=method, url=full_url, **kwargs)
         log.msg(
@@ -55,9 +61,11 @@ class RestClient:
             headers=rest_response.headers,
             json=self._get_json(rest_response)
         )
-        rest_response.raise_for_status()
-        return rest_response
-
+        try:
+            rest_response.raise_for_status()
+            return rest_response
+        except HTTPError:
+            raise HTTPError(rest_response.text, response=rest_response)
 
     @staticmethod
     def _get_json(rest_response):

@@ -27,7 +27,7 @@ class TestPostV1Accounts:
             (Registration(login="vera", password="123456", email="veramail.ru"), 400, "Email", ["Invalid"]),
             (Registration(login="vera", password="123456", email="vera@"), 400, "Email", ["Invalid"]),
         ]
-        )
+    )
     def test_validation_for_incorrect_user_data(self, account_helper, model, status_code, field, msg):
         with allure.step("Check status code and response message after validation"):
             with check_status_code_http(status_code, field, msg):

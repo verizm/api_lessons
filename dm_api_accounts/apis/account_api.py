@@ -28,7 +28,6 @@ class AccountApi(RestClient):
         :return: requests.Response object
         """
         response = self.post(path="/v1/account", json=json_data.model_dump(exclude_none=True, by_alias=True))
-        print(response.status_code)
         return response
 
     def put_v1_account_token(self, token: str, validate_response: bool = True) -> requests.Response | UserEnvelope:
