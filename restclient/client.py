@@ -49,10 +49,9 @@ class RestClient:
 
             try:
                 rest_response.raise_for_status()
-                print(f"RESPONSE {rest_response}")
-                return rest_response
             except HTTPError:
                 raise HTTPError(rest_response.text, response=rest_response)
+            return rest_response
 
         rest_response = self.session.request(method=method, url=full_url, **kwargs)
         log.msg(
@@ -63,9 +62,9 @@ class RestClient:
         )
         try:
             rest_response.raise_for_status()
-            return rest_response
         except HTTPError:
             raise HTTPError(rest_response.text, response=rest_response)
+        return rest_response
 
     @staticmethod
     def _get_json(rest_response):
