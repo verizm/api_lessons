@@ -1,36 +1,30 @@
-import random
 import allure
 from http import HTTPStatus
-from models.data_models.registration import Registration
-from models.data_models.login_credentials import LoginCredentials
+from checkers.http_checkers import check_status_code_http
+from dm_api_accounts.models.login_credentials import LoginCredentials
+from data.data_helpers.user_creator import UserCreator
 
 
 class TestPutV1AccountEmail:
 
     @allure.title("Check login after change email")
     def test_post_v1_account_email(self, account_helper):
-        login = f"vera{random.randrange(1000, 2000)}"
-        user = Registration(login=login, email=f"{login}@mail.ru", password="1234567889")
+        user = UserCreator.make_user()
         login_data = LoginCredentials(login=user.login, password=user.password)
-        new_login = f"vera_new{random.randrange(1000)}"
-        user_new_data = Registration(login=user.login, email=f"{new_login}@gmail.ru", password=user.password)
 
         account_helper.register_new_user(user)
         account_helper.login_user(login_data)
 
         with allure.step("Change email data"):
-            change_mail_resp = account_helper.dm_account_api.account_api.put_v1_account_email(
-                user_new_data,
-                validate_response=False
-            )
-            assert change_mail_resp.status_code == HTTPStatus.OK, f"Error status code after change email: {change_mail_resp}"
+            user.email = UserCreator.fake.generate_email()
+            with check_status_code_http(HTTPStatus.OK):
+                account_helper.dm_account_api.account_api.put_v1_account_email(user, validate_response=False)
 
         with allure.step("Login with new email without authorize"):
-            login_response = account_helper.login_user(login_data)
-            status_code = login_response.status_code
-            assert status_code == HTTPStatus.FORBIDDEN, f"Error status code after login under not authorized user: {status_code}"
+            with check_status_code_http(HTTPStatus.FORBIDDEN):
+                account_helper.login_user(login_data)
 
         with allure.step("Authorize user with new email"):
-            token = account_helper.get_activation_token_by_login(login)
-            login_response = account_helper.dm_account_api.account_api.put_v1_account_token(token,validate_response=False)
-            assert login_response.status_code == HTTPStatus.OK, f"Error status code after new authorize: {login_response.status_code}"
+            token = account_helper.get_activation_token_by_login(user.login)
+            with check_status_code_http(HTTPStatus.OK):
+                account_helper.dm_account_api.account_api.put_v1_account_token(token, validate_response=False)

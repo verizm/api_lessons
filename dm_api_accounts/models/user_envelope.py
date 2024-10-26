@@ -20,16 +20,16 @@ class Rating(BaseModel):
 
 
 class User(BaseModel):
-    login: Optional[str] = Field(None, description="User login")
+    login: Optional[str] = Field(description="User login")
     roles: Optional[List[Roles]]
     medium_picture_url: str = Field(None, alias="mediumPictureUrl", description="Profile picture URL M-size")
     small_picture_url: str = Field(None, alias="smallPictureUrl", description="Profile picture URL S-size")
     status: str = Field(None, alias="User defined status")
     rating: Rating
-    online: datetime = Field(None, alias="Last seen online moment")
-    name: str = Field(None, alias="User real name")
-    location: str = Field(None, alias="User real location")
-    registration: datetime = Field(None, alias="User registration moment")
+    online: datetime = Field(None, description="Last seen online moment")
+    name: str = Field(None, description="User real name")
+    location: str = Field(None, description="User real location")
+    registration: Optional[datetime] = Field(None, description="Date of registration")
 
 
 class UserEnvelope(BaseModel):

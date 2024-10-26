@@ -1,6 +1,6 @@
 import requests
-from models.data_models.login_credentials import LoginCredentials
-from models.response_models.user_envelope import UserEnvelope
+from dm_api_accounts.models.login_credentials import LoginCredentials
+from dm_api_accounts.models.user_envelope import UserEnvelope
 from restclient.client import RestClient
 
 

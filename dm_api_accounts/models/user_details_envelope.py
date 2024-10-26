@@ -71,7 +71,7 @@ class UserDetails(BaseModel):
     online: datetime = Field(None, alias="Last seen online moment")
     name: str = Field(None, alias="User real name")
     location: str = Field(None, alias="User real location")
-    registration: datetime = Field(None, alias="User registration moment")
+    registration: datetime
     icq: str = Field(None, description="User ICQ number")
     skype: str = Field(None, description="User Skype login")
     originalPictureUrl: str = Field(None, description="URL of profile picture original", validation_alias="originalPictureUrl")

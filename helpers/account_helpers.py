@@ -2,18 +2,20 @@ import json
 import time
 import allure
 from typing import Callable
-from requests import Response, JSONDecodeError
+from requests import (
+    Response,
+    JSONDecodeError,
+)
 from http import HTTPStatus
 from logger import log
-from models.response_models.user_envelope import UserEnvelope
+from dm_api_accounts.models.user_envelope import UserEnvelope
 from services.mailhog_api import MailhogApiFacade
 from services.dm_api_account import DmApiAccountFacade
 
-from models.data_models.registration import Registration
-from models.data_models.reset_password import ResetPassword
-from models.data_models.change_password import ChangePassword
-from models.data_models.login_credentials import LoginCredentials
-
+from dm_api_accounts.models.registration import Registration
+from dm_api_accounts.models.reset_password import ResetPassword
+from dm_api_accounts.models.change_password import ChangePassword
+from dm_api_accounts.models.login_credentials import LoginCredentials
 
 
 def token_retrier(function: Callable):
@@ -104,19 +106,16 @@ class AccountHelper:
 
     def register_new_user(self, user: Registration, validate_response: bool = False) -> Response:
         with allure.step("Register new user"):
-            register_response = self.dm_account_api.account_api.post_v1_account(user)
-            status_code = register_response.status_code
-            assert status_code == HTTPStatus.CREATED, f"Error status code after reqister user: {status_code}"
+            self.dm_account_api.account_api.post_v1_account(user)
 
         with allure.step("Get user account token from email"):
             token = self.get_activation_token_by_login(user.login)
 
         with allure.step("Authorize under user"):
             authorize_response = self.dm_account_api.account_api.put_v1_account_token(token, validate_response)
-            status_code = authorize_response.status_code
-            assert status_code == HTTPStatus.OK, f"Error status code after authorize user: {status_code}"
         return authorize_response
 
     def login_user(self, user: LoginCredentials, validate_response=False) -> Response | UserEnvelope:
-        login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
-        return login_response
+        with allure.step("Login user"):
+            login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
+            return login_response

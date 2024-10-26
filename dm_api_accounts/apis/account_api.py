@@ -1,11 +1,11 @@
 import requests
 from restclient.client import RestClient
-from models.data_models.registration import Registration
-from models.data_models.reset_password import ResetPassword
-from models.data_models.change_password import ChangePassword
-from models.data_models.change_email import ChangeEmail
-from models.response_models.user_envelope import UserEnvelope
-from models.response_models.user_details_envelope import UserDetailsEnvelope
+from dm_api_accounts.models.registration import Registration
+from dm_api_accounts.models.reset_password import ResetPassword
+from dm_api_accounts.models.change_password import ChangePassword
+from dm_api_accounts.models.change_email import ChangeEmail
+from dm_api_accounts.models.user_envelope import UserEnvelope
+from dm_api_accounts.models.user_details_envelope import UserDetailsEnvelope
 
 
 class AccountApi(RestClient):
@@ -28,6 +28,7 @@ class AccountApi(RestClient):
         :return: requests.Response object
         """
         response = self.post(path="/v1/account", json=json_data.model_dump(exclude_none=True, by_alias=True))
+        print(response.status_code)
         return response
 
     def put_v1_account_token(self, token: str, validate_response: bool = True) -> requests.Response | UserEnvelope:
