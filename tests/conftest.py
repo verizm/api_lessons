@@ -1,5 +1,6 @@
 from typing import Callable
-
+from pathlib import Path
+from vyper import v
 import pytest
 from restclient.configuration import Configuration as MailhogConfiguration
 from restclient.configuration import Configuration as DmConfiguration
@@ -9,17 +10,42 @@ from services.mailhog_api import MailhogApiFacade
 from dm_api_accounts.models.registration import Registration
 from dm_api_accounts.models.login_credentials import LoginCredentials
 
+options = (
+    'service.dm_api_account',
+    'service.mail_hog',
+    'user.login',
+    'user.password',
+)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def set_config(request):
+    config = Path(__file__).joinpath("../../").joinpath("config")
+    config_name = request.config.getoption("--env")
+    v.set_config_name(config_name)
+    v.add_config_path(config)
+    v.read_in_config()
+    for option in options:
+        v.set(f"{option}", request.config.getoption(f"--{option}"))
+
+
+def pytest_addoption(parser):
+    parser.addoption("--env", action="store_true", default="stg", help="run stg")
+
+    for option in options:
+        parser.addoption(f"--{option}", action="store", default=None)
+
 
 @pytest.fixture(scope="class")
 def mailhog_api() -> MailhogApiFacade:
-    mailhog_configuration = MailhogConfiguration(host="http://5.63.153.31:5025", disable_log=True)
+    mailhog_configuration = MailhogConfiguration(host=v.get('service.mail_hog'), disable_log=True)
     mail_api = MailhogApiFacade(mailhog_configuration)
     return mail_api
 
 
 @pytest.fixture(scope="class")
 def dm_api() -> DmApiAccountFacade:
-    dm_configuration = DmConfiguration(host="http://5.63.153.31:5051", disable_log=False)
+    dm_configuration = DmConfiguration(host=v.get('service.dm_api_account'), disable_log=False)
     dm_api = DmApiAccountFacade(dm_configuration)
     return dm_api
 
@@ -45,7 +71,7 @@ def auth_account_helper(mailhog_api) -> Callable:
     """
 
     def _make_auth_session(user: Registration) -> AccountHelper:
-        dm_configuration = DmConfiguration(host="http://5.63.153.31:5051", disable_log=True)
+        dm_configuration = DmConfiguration(host=v.get('service.dm_api_account'), disable_log=True)
         account = DmApiAccountFacade(dm_configuration)
         account_helper = AccountHelper(dm_account_api=account, mailhog=mailhog_api)
         account_helper.register_new_user(user)

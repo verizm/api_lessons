@@ -5,6 +5,7 @@ assertpy==1.1
 attrs==24.2.0
 certifi==2024.8.30
 charset-normalizer==3.4.0
+distconfig3==1.0.1
 exceptiongroup==1.2.2
 Faker==30.8.1
 idna==3.10
@@ -16,9 +17,13 @@ pydantic_core==2.23.4
 PyHamcrest==2.1.0
 pytest==8.3.3
 python-dateutil==2.9.0.post0
+PyYAML==6.0.2
 requests==2.32.3
 six==1.16.0
 structlog==24.4.0
+toml==0.10.2
 tomli==2.0.2
 typing_extensions==4.12.2
 urllib3==2.2.3
+vyper-config==1.2.1
+watchdog==6.0.0
