@@ -18,8 +18,8 @@ from dm_api_accounts.models.user_envelope import UserEnvelope
 class PostV1AccountLogin:
 
     @classmethod
-    def check_response_data(cls, response: UserEnvelope, user: Registration):
-        with allure.step("Check user data"):
+    def check_response_data(cls, response: UserEnvelope):
+        with allure.step("Validate response data after login user"):
             assert_that(str(response.resource.registration), starts_with(datetime.now().strftime("%Y-%m-%d")))
             assert_that(
                 response, all_of(

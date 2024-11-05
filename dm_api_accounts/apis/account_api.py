@@ -1,3 +1,4 @@
+import allure
 import requests
 from restclient.client import RestClient
 from dm_api_accounts.models.registration import Registration
@@ -10,6 +11,7 @@ from dm_api_accounts.models.user_details_envelope import UserDetailsEnvelope
 
 class AccountApi(RestClient):
 
+    @allure.step("Get user account data")
     def get_v1_account(self, validate_response: bool = True, **kwargs) -> requests.Response | UserDetailsEnvelope:
         """
         Get current user.
@@ -21,6 +23,7 @@ class AccountApi(RestClient):
             return UserDetailsEnvelope(**response.json())
         return response
 
+    @allure.step("Register user")
     def post_v1_account(self, json_data: Registration) -> requests.Response:
         """
         Register new user.
@@ -30,6 +33,7 @@ class AccountApi(RestClient):
         response = self.post(path="/v1/account", json=json_data.model_dump(exclude_none=True, by_alias=True))
         return response
 
+    @allure.step("Activate user by token from email")
     def put_v1_account_token(self, token: str, validate_response: bool = True) -> requests.Response | UserEnvelope:
         """
         Activate reqister user.
@@ -42,6 +46,7 @@ class AccountApi(RestClient):
             return UserEnvelope(**response.json())
         return response
 
+    @allure.step("Change user email")
     def put_v1_account_email(self, json_data: ChangeEmail, validate_response: bool = True) -> requests.Response | UserEnvelope:
         """
         Change user email.
@@ -54,6 +59,7 @@ class AccountApi(RestClient):
             return UserEnvelope(**response.json())
         return response
 
+    @allure.step("Set new password")
     def put_v1_account_password(self, json_data: ChangePassword, validate_response: bool = True) -> requests.Response | UserEnvelope:
         """
         Change user password.
@@ -66,8 +72,10 @@ class AccountApi(RestClient):
             return UserEnvelope(**response.json())
         return response
 
+    @allure.step("Reset user password")
     def post_v1_account_password(
-            self, json_data: ResetPassword,
+            self,
+            json_data: ResetPassword,
             validate_response: bool = True,
     ) -> requests.Response | UserEnvelope:
         """

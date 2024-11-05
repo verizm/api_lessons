@@ -1,16 +1,17 @@
+import allure
 import requests
 from restclient.client import RestClient
 
 
 class MailhogApi(RestClient):
 
-    def get_api_v2_messages(self, limit: int = 50) -> requests.Response:
+    @allure.step("Get emails")
+    def get_api_v2_messages(self) -> requests.Response:
         """
         Get users emails.
         :param limit: count of mails in response
         :return: requests.Response
         """
-        params = {"limit": limit}
 
-        response = self.get(path="/api/v2/messages", params=params)
+        response = self.get(path="/api/v2/messages", params={"limit": 50})
         return response

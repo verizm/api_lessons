@@ -5,17 +5,19 @@ from data.data_helpers.user_creator import UserCreator
 from dm_api_accounts.models.registration import Registration
 
 
+@allure.suite("Check Post v1 account endpoint")
 class TestPostV1Accounts:
 
-    @allure.title("Check register user")
+    @allure.sub_suite("Positive")
+    @allure.title("Check register new user")
     def test_post_v1_account(self, account_helper):
         user = UserCreator.make_user()
 
-        with allure.step("Register new user"):
+        with allure.step("Check register new user"):
             with check_status_code_http(expected_status_code=200):
                 account_helper.dm_account_api.account_api.post_v1_account(user)
 
-
+    @allure.sub_suite("Negative")
     @allure.title("Check validation incorrect user creation data")
     @pytest.mark.parametrize(
         'model, status_code, field, msg',

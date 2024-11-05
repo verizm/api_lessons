@@ -1,3 +1,4 @@
+import allure
 import requests
 from dm_api_accounts.models.login_credentials import LoginCredentials
 from dm_api_accounts.models.user_envelope import UserEnvelope
@@ -6,6 +7,7 @@ from restclient.client import RestClient
 
 class LoginApi(RestClient):
 
+    @allure.step("Login user")
     def post_v1_account_login(self, json_data: LoginCredentials, validate_response: bool = True) -> requests.Response | UserEnvelope:
         """
         Authenticate via credentials.
@@ -18,6 +20,7 @@ class LoginApi(RestClient):
             return UserEnvelope(**response.json())
         return response
 
+    @allure.step("Logout user")
     def delete_v1_account_login(self) -> requests.Response:
         """
         Relogin user via token.
@@ -26,6 +29,7 @@ class LoginApi(RestClient):
         response = self.delete(path="/v1/account/login")
         return response
 
+    @allure.step("Logout user from all devices")
     def delete_v1_account_login_all(self) -> requests.Response:
         """
         Relogin user via token from all devices.

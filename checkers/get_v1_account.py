@@ -19,7 +19,7 @@ class GetV1Account:
 
     @classmethod
     def check_response_data(cls, response: UserDetailsEnvelope, user: Registration):
-        with allure.step("Check user data"):
+        with allure.step("Validate user details data"):
             assert_that(str(response.resource.registration), starts_with(datetime.now().strftime("%Y-%m-%d")))
             assert_that(
                 response, all_of(

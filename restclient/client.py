@@ -6,6 +6,7 @@ from requests import (
     JSONDecodeError,
     HTTPError,
 )
+from restclient.utilites import allure_attach
 from restclient.configuration import Configuration
 from logger import log
 
@@ -34,6 +35,7 @@ class RestClient:
     def delete(self, path, **kwargs) -> requests.Response:
         return self._send_request(method='DELETE', url=path, **kwargs)
 
+    @allure_attach
     def _send_request(self, method: Literal['PUT', 'DELETE', 'GET', 'POST'], url: str, **kwargs) -> requests.Response:
         log = self.log.bind(event_id=str(uuid.uuid4()))
         full_url = self.host + url

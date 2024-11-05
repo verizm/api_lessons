@@ -6,7 +6,6 @@ from requests import (
     Response,
     JSONDecodeError,
 )
-from http import HTTPStatus
 from logger import log
 from dm_api_accounts.models.user_envelope import UserEnvelope
 from services.mailhog_api import MailhogApiFacade
@@ -79,13 +78,14 @@ class AccountHelper:
         :param user_credentials: LoginCredentials data
         :return:  None
         """
-        with allure.step("Create user session"):
-            response = self.login_user(user_credentials)
-            token = {self.AUTH_HEADER: response.headers[self.AUTH_HEADER]}
-            self.dm_account_api.account_api.set_headers(token)
-            self.dm_account_api.login_api.set_headers(token)
-            return response
 
+        response = self.login_user(user_credentials)
+        token = {self.AUTH_HEADER: response.headers[self.AUTH_HEADER]}
+        self.dm_account_api.account_api.set_headers(token)
+        self.dm_account_api.login_api.set_headers(token)
+        return response
+
+    @allure.step("Change user password")
     def change_password(
             self,
             reset_pass_data: ResetPassword,
@@ -107,15 +107,10 @@ class AccountHelper:
     def register_new_user(self, user: Registration, validate_response: bool = False) -> Response:
         with allure.step("Register new user"):
             self.dm_account_api.account_api.post_v1_account(user)
-
-        with allure.step("Get user account token from email"):
             token = self.get_activation_token_by_login(user.login)
-
-        with allure.step("Authorize under user"):
             authorize_response = self.dm_account_api.account_api.put_v1_account_token(token, validate_response)
-        return authorize_response
+            return authorize_response
 
     def login_user(self, user: LoginCredentials, validate_response=False) -> Response | UserEnvelope:
-        with allure.step("Login user"):
-            login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
-            return login_response
+        login_response = self.dm_account_api.login_api.post_v1_account_login(user, validate_response)
+        return login_response
