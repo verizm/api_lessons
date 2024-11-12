@@ -1,7 +1,3 @@
 service:
   dm_api_account: "http://5.63.153.31:5051"
   mail_hog: "http://5.63.153.31:5025"
-
-user:
-  login: "vera"
-  email: "vera@gmail.ru"

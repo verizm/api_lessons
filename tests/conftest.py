@@ -13,8 +13,6 @@ from dm_api_accounts.models.login_credentials import LoginCredentials
 options = (
     'service.dm_api_account',
     'service.mail_hog',
-    'user.login',
-    'user.password',
 )
 
 

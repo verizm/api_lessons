@@ -17,7 +17,7 @@ class RestClient:
         self.set_headers(configuration.headers)
         self.disable_log = configuration.disable_log
         self.session = Session()
-        self.log = log.bind(service='')
+        self.log = log.bind(event_id=str(uuid.uuid4()))
 
     def set_headers(self, headers: dict) -> None:
         if headers:
@@ -36,26 +36,32 @@ class RestClient:
         return self._send_request(method='DELETE', url=path, **kwargs)
 
     @allure_attach
-    def _send_request(self, method: Literal['PUT', 'DELETE', 'GET', 'POST'], url: str, **kwargs) -> requests.Response:
-        log = self.log.bind(event_id=str(uuid.uuid4()))
+    def _send_request(
+            self,
+            method: Literal['PUT', 'DELETE', 'GET', 'POST'],
+            url: str,
+            **kwargs,
+    ) -> requests.Response:
+
         full_url = self.host + url
 
         if self.disable_log:
             rest_response = self.session.request(method=method, url=full_url, **kwargs)
-            log.msg(
-                event='Request',
-                method=method,
-                params=kwargs.get('params'),
-                data=kwargs.get('data')
-            )
 
             try:
                 rest_response.raise_for_status()
             except HTTPError:
-                raise HTTPError(rest_response.text, response=rest_response)
-            return rest_response
+                return rest_response
+
+        log.msg(
+            event='Request',
+            method=method,
+            params=kwargs.get('params'),
+            data=kwargs.get('data')
+        )
 
         rest_response = self.session.request(method=method, url=full_url, **kwargs)
+
         log.msg(
             event='Response',
             status_code=rest_response.status_code,
@@ -65,8 +71,7 @@ class RestClient:
         try:
             rest_response.raise_for_status()
         except HTTPError:
-            raise HTTPError(rest_response.text, response=rest_response)
-        return rest_response
+            return rest_response
 
     @staticmethod
     def _get_json(rest_response):
